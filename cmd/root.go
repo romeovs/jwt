@@ -19,6 +19,10 @@ var silent bool
 var onlyInfo bool
 var onlyJSON bool
 
+type Token struct {
+	AccessToken string `json:"access_token"`
+}
+
 var RootCmd = &cobra.Command{
 	Use:   "jwt [token|path]",
 	Short: "jwt can be used the debug JWT tokens.",
@@ -76,7 +80,14 @@ var RootCmd = &cobra.Command{
 		parts := strings.Split(token, ".")
 
 		if len(parts) != 3 {
-			log.Fatal("Token has invalid number of segments")
+			var s Token
+			err := json.Unmarshal([]byte(token), &s)
+			if err != nil {
+				log.Fatal("Token has invalid number of segments")
+			}
+
+			log.Debug("Token was in OAuth 2 response")
+			token = s.AccessToken
 		}
 
 		segment, err := jwt.DecodeSegment(parts[1])
