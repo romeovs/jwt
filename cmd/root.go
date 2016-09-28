@@ -15,6 +15,7 @@ import (
 )
 
 var debug bool
+var silent bool
 var onlyInfo bool
 var onlyJSON bool
 
@@ -25,6 +26,11 @@ var RootCmd = &cobra.Command{
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		if debug {
 			log.SetLevel(log.DebugLevel)
+			log.Debug("Debug on")
+		}
+
+		if silent {
+			log.SetLevel(log.ErrorLevel)
 			log.Debug("Debug on")
 		}
 
@@ -106,8 +112,8 @@ var RootCmd = &cobra.Command{
 		table.AddRow("  Expires:", expires)
 		table.AddRow("  Valid:", validity)
 
-		fmt.Println()
 		if !onlyJSON {
+			fmt.Println()
 			fmt.Println(table)
 			fmt.Println()
 		}
@@ -120,6 +126,7 @@ var RootCmd = &cobra.Command{
 
 func init() {
 	RootCmd.PersistentFlags().BoolVarP(&debug, "verbose", "v", false, "show debug output")
+	RootCmd.PersistentFlags().BoolVarP(&silent, "silent", "s", false, "do not print status messages")
 	RootCmd.PersistentFlags().BoolVarP(&onlyInfo, "info", "i", false, "only show info about token")
 	RootCmd.PersistentFlags().BoolVarP(&onlyJSON, "json", "j", false, "only show decoded token (no info)")
 }
