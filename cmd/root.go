@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/apex/log"
-	"github.com/gosuri/uitable"
 	"github.com/romeovs/jwt/util"
 	"github.com/spf13/cobra"
 )
@@ -117,16 +116,13 @@ var RootCmd = &cobra.Command{
 			validity = fmt.Sprintf("token is expired for %s", now.Sub(expires))
 		}
 
-		table := uitable.New()
-		table.AddRow("Type:", header["typ"])
-		table.AddRow("Algorithm:", header["alg"])
-		table.AddRow("Issued:", issued)
-		table.AddRow("Expires:", expires)
-		table.AddRow("Valid:", validity)
-
 		if !onlyJSON {
 			fmt.Println()
-			fmt.Println(table)
+			field("Type", header["typ"])
+			field("Algorithm", header["alg"])
+			field("Issued", issued)
+			field("Expires", expires)
+			field("Valid", validity)
 			fmt.Println()
 		}
 
