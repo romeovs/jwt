@@ -10,10 +10,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var debug bool
 var RootCmd = &cobra.Command{
 	Use:   "jwt [token]",
 	Short: "jwt can be used the debug JWT tokens.",
 	Long:  "A simple jwt debugging tool written in Go.",
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		if debug {
+			log.SetLevel(log.DebugLevel)
+			log.Debug("Debug on")
+		}
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
 			cmd.UsageFunc()
@@ -45,4 +52,8 @@ var RootCmd = &cobra.Command{
 
 		fmt.Println(string(indented))
 	},
+}
+
+func init() {
+	RootCmd.PersistentFlags().BoolVarP(&debug, "verbose", "v", false, "show debug output")
 }
