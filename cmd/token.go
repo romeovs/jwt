@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/apex/log"
 	jwt "github.com/dgrijalva/jwt-go"
@@ -69,6 +70,13 @@ func fromFile(cmd *cobra.Command, args []string) (string, bool) {
 			log.WithField("file", filename).WithError(err).Fatal("Could not read file")
 		}
 		return string(content), true
+	} else if forceFile {
+		msg := err.Error()
+		parts := strings.Split(err.Error(), ": ")
+		if len(parts) > 1 {
+			msg = parts[1]
+		}
+		log.WithField("error", msg).WithField("file", filename).Fatal("Could not read file")
 	}
 
 	return "", false
@@ -86,6 +94,10 @@ func getToken(cmd *cobra.Command, args []string) string {
 		os.Exit(1)
 	}
 
+	if forceInput {
+		return args[0]
+	}
+
 	token, ok = fromFile(cmd, args)
 	if ok {
 		return token
@@ -96,11 +108,16 @@ func getToken(cmd *cobra.Command, args []string) string {
 }
 
 func tryJSON(token string) string {
+	if forceRaw {
+		return token
+	}
 	var s Token
 	err := json.Unmarshal([]byte(token), &s)
 	if err == nil {
 		log.Debug("Got OAuth 2 JSON")
 		return s.AccessToken
+	} else if forceOAuth {
+		log.WithError(err).Fatal("Could not parse OAuth 2 response")
 	}
 	return token
 }
