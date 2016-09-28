@@ -5,7 +5,7 @@ A simple debugger for [jwt][jwt] tokens written in Go.
 # Installation
 
 ```sh
-go get github.com/romeovs/jwt
+go get -u github.com/romeovs/jwt
 ```
 
 # Roadmap
