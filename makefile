@@ -1,6 +1,6 @@
 
 GO = go
-SOURCE_FILES = $(shell ls ./**/*.go *.go)
+SOURCE_FILES = $(shell find . -name "*.go" -and -not -name ".git")
 
 build: release/jwt
 
