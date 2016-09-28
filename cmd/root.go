@@ -24,19 +24,34 @@ var RootCmd = &cobra.Command{
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) != 1 {
-			cmd.UsageFunc()
-			return
-		}
 
-		token := args[0]
-		if _, err := os.Stat(token); !os.IsNotExist(err) {
-			log.WithField("Filename", token).Debug("Got filename argument")
-			content, err := ioutil.ReadFile(token)
+		var token string
+
+		stat, _ := os.Stdin.Stat()
+		if (stat.Mode() & os.ModeCharDevice) == 0 {
+			log.Debug("Accepting token from stdin")
+			read, err := ioutil.ReadAll(os.Stdin)
 			if err != nil {
-				log.WithField("Filename", token).WithError(err).Fatal("Could not read file")
+				log.WithError(err).Fatal("Could not read from std in")
 			}
-			token = string(content)
+			token = string(read)
+		} else {
+			if len(args) != 1 {
+				cmd.UsageFunc()
+				return
+			}
+
+			token = args[0]
+			if _, err := os.Stat(token); err == nil {
+				log.WithField("Filename", token).Debug("Got filename argument")
+				content, err := ioutil.ReadFile(token)
+				if err != nil {
+					log.WithField("Filename", token).WithError(err).Fatal("Could not read file")
+				}
+				token = string(content)
+			}
+
+			log.Debug("Got token as argument")
 		}
 
 		parts := strings.Split(token, ".")
