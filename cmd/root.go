@@ -11,6 +11,7 @@ import (
 	"github.com/apex/log"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gosuri/uitable"
+	"github.com/romeovs/jwt/util"
 	"github.com/spf13/cobra"
 )
 
@@ -18,6 +19,7 @@ var debug bool
 var silent bool
 var onlyInfo bool
 var onlyJSON bool
+var noColor bool
 
 type Token struct {
 	AccessToken string `json:"access_token"`
@@ -136,7 +138,11 @@ var RootCmd = &cobra.Command{
 		}
 
 		if !onlyInfo {
-			fmt.Println(string(indented))
+			json := string(indented)
+			if !noColor {
+				json = util.Colorize(json)
+			}
+			fmt.Println(json)
 		}
 	},
 }
@@ -146,4 +152,5 @@ func init() {
 	RootCmd.PersistentFlags().BoolVarP(&silent, "silent", "s", false, "do not print status messages")
 	RootCmd.PersistentFlags().BoolVarP(&onlyInfo, "info", "i", false, "only show info about token")
 	RootCmd.PersistentFlags().BoolVarP(&onlyJSON, "json", "j", false, "only show decoded token (no info)")
+	RootCmd.PersistentFlags().BoolVarP(&noColor, "no-color", "c", false, "do not colorize json")
 }
