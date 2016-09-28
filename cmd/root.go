@@ -56,7 +56,7 @@ var RootCmd = &cobra.Command{
 			token = string(read)
 		} else {
 			if len(args) != 1 {
-				cmd.UsageFunc()
+				cmd.UsageFunc()(cmd)
 				return
 			}
 
