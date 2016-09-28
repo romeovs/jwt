@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/apex/log"
-	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gosuri/uitable"
 	"github.com/romeovs/jwt/util"
 	"github.com/spf13/cobra"
@@ -85,29 +84,21 @@ var RootCmd = &cobra.Command{
 			log.Debug("Got token as argument")
 		}
 
-		parts := strings.Split(token, ".")
-
-		if len(parts) != 3 {
-			var s Token
-			err := json.Unmarshal([]byte(token), &s)
-			if err != nil {
-				log.Fatal("Token has invalid number of segments")
-			}
-
+		var s Token
+		err := json.Unmarshal([]byte(token), &s)
+		if err == nil {
 			log.Debug("Token was in OAuth 2 response")
 			token = s.AccessToken
 		}
 
-		segment, err := jwt.DecodeSegment(parts[1])
-		if err != nil {
-			log.WithError(err).Fatal("Could not decode token")
+		parts := strings.Split(token, ".")
+
+		if len(parts) != 3 {
+			log.Fatal("Token has invalid number of segments")
 		}
 
-		var claims jwt.MapClaims
-		err = json.Unmarshal(segment, &claims)
-		if err != nil {
-			log.WithError(err).Fatal("Could not unmarshal JSON in token")
-		}
+		header := unmarshal(parts[0])
+		claims := unmarshal(parts[1])
 
 		indented, err := json.MarshalIndent(claims, "", "  ")
 		if err != nil {
@@ -127,6 +118,8 @@ var RootCmd = &cobra.Command{
 		}
 
 		table := uitable.New()
+		table.AddRow("  Type:", header["typ"])
+		table.AddRow("  Algorithm:", header["alg"])
 		table.AddRow("  Issued:", issued)
 		table.AddRow("  Expires:", expires)
 		table.AddRow("  Valid:", validity)
