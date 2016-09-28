@@ -35,7 +35,7 @@ var Strings = [...]string{
 	log.InfoLevel:  "INFO",
 	log.WarnLevel:  "WARN",
 	log.ErrorLevel: "ERROR",
-	log.FatalLevel: "FATAL",
+	log.FatalLevel: "ERROR",
 }
 
 // field used for sorting.
@@ -81,21 +81,13 @@ func (h *Handler) HandleLog(e *log.Entry) error {
 	defer h.mu.Unlock()
 
 	if runtime.GOOS == "windows" {
-		fmt.Fprintf(h.Writer, "%6s %-40s", level, e.Message)
+		fmt.Fprintf(h.Writer, "%-5s %-30s", level, e.Message)
 	} else {
-		fmt.Fprintf(h.Writer, "\033[%dm%6s\033[0m %-40s", color, level, e.Message)
+		fmt.Fprintf(h.Writer, "\033[%dm%-5s\033[0m %-30s", color, level, e.Message)
 	}
 
 	for _, f := range fields {
-		var value interface{}
-		switch t := f.Value.(type) {
-		case []byte: // addresses and EUIs are []byte
-			value = fmt.Sprintf("%X", t)
-		case [21]byte: // bundle IDs [21]byte
-			value = fmt.Sprintf("%X-%X-%X-%X", t[0], t[1:9], t[9:17], t[17:])
-		default:
-			value = f.Value
-		}
+		value := f.Value
 
 		if runtime.GOOS == "windows" {
 			fmt.Fprintf(h.Writer, " %s=%v", f.Name, value)
