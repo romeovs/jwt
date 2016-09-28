@@ -29,6 +29,10 @@ func unmarshal(segment string) jwt.MapClaims {
 }
 
 func field(name string, value interface{}) {
+	if value == nil {
+		return
+	}
+
 	key := fmt.Sprintf("%10s", name)
 	if !noColor {
 		key = ansi.Color(key, "blue")
