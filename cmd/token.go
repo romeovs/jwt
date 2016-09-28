@@ -3,10 +3,13 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
 
 	"github.com/apex/log"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/mgutz/ansi"
+	"github.com/spf13/cobra"
 )
 
 func unmarshal(segment string) jwt.MapClaims {
@@ -30,4 +33,74 @@ func field(name string, value interface{}) {
 		key = ansi.Color(key, "blue")
 	}
 	fmt.Printf("%s  %s\n", key, value)
+}
+
+func fromStdin(args []string) (string, bool) {
+	stat, _ := os.Stdin.Stat()
+	if (stat.Mode() & os.ModeCharDevice) == 0 {
+		if len(args) != 0 {
+			log.Fatal("Got token both as argument and stdin")
+		}
+
+		log.Debug("Got token on stdin")
+
+		read, err := ioutil.ReadAll(os.Stdin)
+		if err != nil {
+			log.WithError(err).Fatal("Could not read from std in")
+		}
+		return string(read), true
+	}
+
+	return "", false
+}
+
+func fromFile(cmd *cobra.Command, args []string) (string, bool) {
+	if len(args) != 1 {
+		cmd.UsageFunc()(cmd)
+		return "", false
+	}
+
+	filename := args[0]
+
+	if _, err := os.Stat(filename); err == nil {
+		log.WithField("file", filename).Debug("Got filename")
+		content, err := ioutil.ReadFile(filename)
+		if err != nil {
+			log.WithField("file", filename).WithError(err).Fatal("Could not read file")
+		}
+		return string(content), true
+	}
+
+	return "", false
+}
+
+func getToken(cmd *cobra.Command, args []string) string {
+
+	token, ok := fromStdin(args)
+	if ok {
+		return token
+	}
+
+	if len(args) != 1 {
+		cmd.UsageFunc()(cmd)
+		os.Exit(1)
+	}
+
+	token, ok = fromFile(cmd, args)
+	if ok {
+		return token
+	}
+
+	log.Debug("Got raw token")
+	return args[0]
+}
+
+func tryJSON(token string) string {
+	var s Token
+	err := json.Unmarshal([]byte(token), &s)
+	if err == nil {
+		log.Debug("Got OAuth 2 JSON")
+		return s.AccessToken
+	}
+	return token
 }

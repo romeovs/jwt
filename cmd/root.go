@@ -3,8 +3,6 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"os"
 	"strings"
 	"time"
 
@@ -38,58 +36,19 @@ var RootCmd = &cobra.Command{
 			log.Debug("Debug on")
 		}
 
-		if onlyJSON {
-			log.Debug("Only printing JSON")
+		if onlyJSON && !onlyInfo {
+			log.WithField("flag", "--json").Debug("Only printing JSON")
 		}
 
 		if onlyInfo {
-			log.Debug("Only printing info")
+			log.WithField("flag", "--info").Debug("Only printing info")
 			onlyJSON = false
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 
-		var token string
-
-		stat, _ := os.Stdin.Stat()
-		if (stat.Mode() & os.ModeCharDevice) == 0 {
-			log.Debug("Accepting token from stdin")
-
-			if len(args) != 0 {
-				log.Fatal("Got both argument and stdin token")
-				return
-			}
-
-			read, err := ioutil.ReadAll(os.Stdin)
-			if err != nil {
-				log.WithError(err).Fatal("Could not read from std in")
-			}
-			token = string(read)
-		} else {
-			if len(args) != 1 {
-				cmd.UsageFunc()(cmd)
-				return
-			}
-
-			token = args[0]
-			if _, err := os.Stat(token); err == nil {
-				log.WithField("Filename", token).Debug("Got filename argument")
-				content, err := ioutil.ReadFile(token)
-				if err != nil {
-					log.WithField("Filename", token).WithError(err).Fatal("Could not read file")
-				}
-				token = string(content)
-			} else {
-				log.Debug("Got token as argument")
-			}
-		}
-
-		var s Token
-		err := json.Unmarshal([]byte(token), &s)
-		if err == nil {
-			log.Debug("Token was in OAuth 2 response")
-			token = s.AccessToken
-		}
+		token := getToken(cmd, args)
+		token = tryJSON(token)
 
 		parts := strings.Split(token, ".")
 
