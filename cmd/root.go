@@ -44,6 +44,7 @@ var RootCmd = &cobra.Command{
 
 		if onlyInfo {
 			log.Debug("Only printing info")
+			onlyJSON = false
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -78,9 +79,9 @@ var RootCmd = &cobra.Command{
 					log.WithField("Filename", token).WithError(err).Fatal("Could not read file")
 				}
 				token = string(content)
+			} else {
+				log.Debug("Got token as argument")
 			}
-
-			log.Debug("Got token as argument")
 		}
 
 		var s Token
