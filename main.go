@@ -4,8 +4,8 @@ import (
 	"os"
 
 	"github.com/apex/log"
-	"github.com/romeovs/jwt-cli/cmd"
-	"github.com/romeovs/jwt-cli/util/handler"
+	"github.com/romeovs/jwt/cmd"
+	"github.com/romeovs/jwt/util/handler"
 )
 
 func main() {
