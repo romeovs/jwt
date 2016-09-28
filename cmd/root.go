@@ -53,6 +53,12 @@ var RootCmd = &cobra.Command{
 		stat, _ := os.Stdin.Stat()
 		if (stat.Mode() & os.ModeCharDevice) == 0 {
 			log.Debug("Accepting token from stdin")
+
+			if len(args) != 0 {
+				log.Fatal("Got both argument and stdin token")
+				return
+			}
+
 			read, err := ioutil.ReadAll(os.Stdin)
 			if err != nil {
 				log.WithError(err).Fatal("Could not read from std in")
