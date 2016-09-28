@@ -3,6 +3,8 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/apex/log"
@@ -12,7 +14,7 @@ import (
 
 var debug bool
 var RootCmd = &cobra.Command{
-	Use:   "jwt [token]",
+	Use:   "jwt [token|path]",
 	Short: "jwt can be used the debug JWT tokens.",
 	Long:  "A simple jwt debugging tool written in Go.",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
@@ -28,6 +30,15 @@ var RootCmd = &cobra.Command{
 		}
 
 		token := args[0]
+		if _, err := os.Stat(token); !os.IsNotExist(err) {
+			log.WithField("Filename", token).Debug("Got filename argument")
+			content, err := ioutil.ReadFile(token)
+			if err != nil {
+				log.WithField("Filename", token).WithError(err).Fatal("Could not read file")
+			}
+			token = string(content)
+		}
+
 		parts := strings.Split(token, ".")
 
 		if len(parts) != 3 {
