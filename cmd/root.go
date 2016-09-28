@@ -118,11 +118,11 @@ var RootCmd = &cobra.Command{
 		}
 
 		table := uitable.New()
-		table.AddRow("  Type:", header["typ"])
-		table.AddRow("  Algorithm:", header["alg"])
-		table.AddRow("  Issued:", issued)
-		table.AddRow("  Expires:", expires)
-		table.AddRow("  Valid:", validity)
+		table.AddRow("Type:", header["typ"])
+		table.AddRow("Algorithm:", header["alg"])
+		table.AddRow("Issued:", issued)
+		table.AddRow("Expires:", expires)
+		table.AddRow("Valid:", validity)
 
 		if !onlyJSON {
 			fmt.Println()
