@@ -26,14 +26,13 @@ var RootCmd = &cobra.Command{
 	Short: "jwt can be used the debug JWT tokens.",
 	Long:  "A simple jwt debugging tool written in Go.",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		if debug {
+		if debug && !silent {
 			log.SetLevel(log.DebugLevel)
 			log.Debug("Debug on")
 		}
 
 		if silent {
 			log.SetLevel(log.ErrorLevel)
-			log.Debug("Debug on")
 		}
 
 		if onlyJSON && !onlyInfo {
