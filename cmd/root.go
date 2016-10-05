@@ -97,16 +97,21 @@ is equivalent to passing "eq10..." directly. To suppress this behaviour, use the
 			log.WithError(err).Fatal("Could not indent JSON")
 		}
 
-		issued := time.Unix(int64(claims["iat"].(float64)), 0)
-		expires := time.Unix(int64(claims["exp"].(float64)), 0)
 		now := time.Now().Round(time.Second)
 
 		validity := "token is valid"
+		issued := time.Unix(int64(claims["iat"].(float64)), 0)
 		if issued.After(now) {
 			validity = fmt.Sprintf("token is not valid for %s", issued.Sub(now))
 		}
-		if now.After(expires) {
-			validity = fmt.Sprintf("token is expired for %s", now.Sub(expires))
+
+		var expires *time.Time
+		if claims["exp"] != nil {
+			exp := time.Unix(int64(claims["exp"].(float64)), 0)
+			if now.After(exp) {
+				validity = fmt.Sprintf("token is expired for %s", now.Sub(exp))
+			}
+			expires = &exp
 		}
 
 		if !onlyJSON {
