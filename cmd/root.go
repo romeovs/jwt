@@ -100,9 +100,14 @@ is equivalent to passing "eq10..." directly. To suppress this behaviour, use the
 		now := time.Now().Round(time.Second)
 
 		validity := "token is valid"
-		issued := time.Unix(int64(claims["iat"].(float64)), 0)
-		if issued.After(now) {
-			validity = fmt.Sprintf("token is not valid for %s", issued.Sub(now))
+
+		var issued *time.Time
+		if claims["iat"] != nil {
+			iat := time.Unix(int64(claims["iat"].(float64)), 0)
+			if iat.After(now) {
+				validity = fmt.Sprintf("token is not valid for %s", iat.Sub(now))
+			}
+			issued = &iat
 		}
 
 		var expires *time.Time
