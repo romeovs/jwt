@@ -37,7 +37,7 @@ func field(name string, value interface{}) {
 	if !noColor {
 		key = ansi.Color(key, "blue")
 	}
-	fmt.Printf("%s  %s\n", key, value)
+	fmt.Printf("%s  %v\n", key, value)
 }
 
 func fromStdin(args []string) (string, bool) {
