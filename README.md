@@ -2,13 +2,13 @@
 
 A simple debugger for [jwt][jwt] tokens written in Go.
 
-# Installation
+## Installation
 
 ```sh
 go get -u github.com/romeovs/jwt
 ```
 
-# Usage
+## Usage
 
 To decode a JWT, just pass it as an argument:
 ```sh
