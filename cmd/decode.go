@@ -84,7 +84,7 @@ func init() {
 	DecodeCmd.PersistentFlags().BoolVarP(&onlyJSON, "json", "j", false, "only show decoded token (no info)")
 	DecodeCmd.PersistentFlags().BoolVarP(&noColor, "no-color", "c", false, "do not colorize json")
 	DecodeCmd.PersistentFlags().BoolVarP(&forceFile, "file", "f", false, "force input to be filename (inverse of --input)")
-	DecodeCmd.PersistentFlags().BoolVarP(&forceInput, "input", "d", false, "force direct input (inverse of --filename)")
+	DecodeCmd.PersistentFlags().BoolVarP(&forceInput, "input", "d", false, "force direct input (inverse of --file)")
 	DecodeCmd.PersistentFlags().BoolVarP(&forceOAuth, "oauth", "o", false, "force input to be OAuth 2.0 JSON response (inverse of --raw)")
 	DecodeCmd.PersistentFlags().BoolVarP(&forceRaw, "raw", "r", false, "force input to be raw token (inverse of --oauth)")
 }
